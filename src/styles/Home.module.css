@@ -7,6 +7,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   font-family: 'Inter', sans-serif;
+  position: relative;
 }
 
 .title {
@@ -60,7 +61,7 @@
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  z-index: 10;
+  z-index: 2;
 }
 
 .wheel img {
@@ -169,4 +170,83 @@
 
 .data button:hover {
   background-color: #e60000;
+}
+
+.congrats {
+  font-size: 18px;
+  border-radius: 12px;
+  background-color: #ffffff;
+  padding: 50px 30px 50px;
+  text-align: center;
+  color: #212121;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 30vw;
+  height: fit-content;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.congrats h2 {
+  width: 100%;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.congratsBg {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.7);
+  width: 100vw;
+  height: 100vh;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  animation: fadeInBg 0.3s ease-in-out;
+}
+
+.close {
+  width: 24px;
+  height: 24px;
+  background-color: #ff5e5e;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.close::before {
+  content: '×';
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes fadeInBg {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

@@ -4,6 +4,7 @@ import styles from "@/styles/Home.module.css";
 import { useState } from "react";
 import kingJulien from "../imgs/king_julien.png";
 import Image from "next/image";
+import Confetti from "react-confetti";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
@@ -11,6 +12,7 @@ export default function Home() {
   const [dataInfo, setDataInfo] = useState([]);
   const [spinValue, setSpinValue] = useState(0);
   const [spinTime, setSpinTime] = useState(0);
+  const [congrats, setCongrats] = useState(false);
 
   const getRandomColor = () => {
     const r = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
@@ -99,7 +101,7 @@ export default function Home() {
         return acc;
       }, {name: "No winner"});
 
-      alert(`The winner is: ${winner.name}`);
+      setCongrats(winner.name);
     }, newTime * 1000);
   };
 
@@ -235,7 +237,18 @@ export default function Home() {
             ))}
           </div>
         </div>
+        {congrats && (
+          <>
+            <div className={`${styles.congratsBg}`}></div>
+            <div className={`${styles.congrats}`}>
+              <div className={`${styles.close}`} onClick={() => setCongrats(false)}></div>
+              <h2>Congratulations!</h2>
+              <p>We will go to lunch at {congrats}</p>
+            </div>
+          </>
+        )}
       </main>
+      {congrats && <Confetti style={{zIndex: "4"}} width={window.innerWidth} height={window.innerHeight}/>}
     </>
   );
 }
