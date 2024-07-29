@@ -92,16 +92,38 @@ export default function Home() {
     setSpinTime(newTime);
 
     timeOut = setTimeout(() => {
-      const winner = dataInfo.reduce((acc, value, index) => {
-        const startAngle = dataInfo.slice(0, index).reduce((acc, value) => acc + ((value.percentage) / (100)) * 360, 0);
-        const endAngle = startAngle + ((value.percentage) / (100)) * 360;
-        if (spinValue % 360 >= startAngle && spinValue % 360 < endAngle) {
-          return value;
+      const getAngle = newRotation % 360;
+      const getItemAtAngle = () => {
+        let acc = 0;
+        let start = 0;
+        let end = 0;
+        for (let index = 0; index < dataInfo.length; index++) {
+          acc += dataInfo[index].percentage * 3.6;
+          if (acc >= getAngle) {
+            start = index === 0 ? 0 : acc - dataInfo[index - 1].percentage * 3.6;
+            end = acc;
+            console.log("acc ===> ", acc);
+            console.log("start ===> ", start);
+            console.log("end ===> ", end);
+            console.log("dataInfo[index] ===> ", dataInfo[index]);
+            console.log("dataInfo[index - 1] ===> ", dataInfo[index - 1]);
+            if (getAngle >= start && getAngle <= end) {
+              if (!dataInfo[index]?.name) {
+                return dataInfo[index - 1];
+              }
+              return dataInfo[index];
+            }
+          }
         }
-        return acc;
-      }, {name: "No winner"});
+        if (acc < getAngle) {
+          return {name: "No winner"};
+        }
+      }
+      const getWinner = getItemAtAngle();
+      
+      console.log("getItemAtAngle() ===> ", getItemAtAngle());
 
-      setCongrats(winner.name);
+      setCongrats(getItemAtAngle().name ? getItemAtAngle().name : "the one with color " + ntc.name(getItemAtAngle().color)[1]);
     }, newTime * 1000);
   };
 
@@ -111,6 +133,7 @@ export default function Home() {
         <title>II LUNCH WHEEL</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+        <script type="text/javascript" src="https://chir.ag/projects/ntc/ntc.js"></script>
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <h1 className={`${styles.title}`}>
@@ -121,7 +144,12 @@ export default function Home() {
         <div className={`${styles.content}`}>
           <div>
             <div className={`${styles.wheel}`}>
-              <svg width="400" height="400" viewBox="0 0 100 100" style={{ transform: `rotate(${spinValue}deg)`, transition: `transform ${spinTime}s ease-out` }}>
+              <svg
+                width="400"
+                height="400"
+                viewBox="0 0 100 100"
+                style={{ transform: `rotate(${-spinValue}deg)`, transition: `transform ${spinTime}s ease-out` }}
+              >
                 {dataInfo.length > 0 ?
                   dataInfo.map((value, index) => (
                     <g key={index}>
@@ -242,13 +270,21 @@ export default function Home() {
             <div className={`${styles.congratsBg}`}></div>
             <div className={`${styles.congrats}`}>
               <div className={`${styles.close}`} onClick={() => setCongrats(false)}></div>
-              <h2>Congratulations!</h2>
-              <p>We will go to lunch at {congrats}</p>
+              {congrats !== "No winner" ?
+                <>
+                  <h2>Congratulations!</h2>
+                  <p>We will go to lunch at {congrats}</p>
+                </> :
+                <>
+                  <h2>Sorry!</h2>
+                  <p>We will not lunch today... :/</p>
+                </>
+              }
             </div>
           </>
         )}
       </main>
-      {congrats && <Confetti style={{zIndex: "4"}} width={window.innerWidth} height={window.innerHeight}/>}
+      {congrats && congrats !== "No winner" && <Confetti style={{zIndex: "4"}} width={window.innerWidth} height={window.innerHeight}/>}
     </>
   );
 }
