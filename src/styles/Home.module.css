@@ -20,20 +20,18 @@
   color: #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 30px;
+}
 
-  & span {
-    &:nth-child(1) {
-      color: #FFDE17;
-    }
-  
-    &:nth-child(2) {
-      color: #EF2B7D;
-    }
-  
-    &:nth-child(3) {
-      color: #00ADEF;
-    }
-  }
+.yellow {
+  color: #FFDE17;
+}
+
+.magenta {
+  color: #EF2B7D;
+}
+
+.cyan {
+  color: #00ADEF;
 }
 
 .content {

@@ -13,6 +13,7 @@ export default function Home() {
   const [spinValue, setSpinValue] = useState(0);
   const [spinTime, setSpinTime] = useState(0);
   const [congrats, setCongrats] = useState(false);
+  const [spinning, setSpinning] = useState(false);
 
   const getRandomColor = () => {
     const r = Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
@@ -82,6 +83,7 @@ export default function Home() {
   let timeOut = null;
 
   const handleSpin = () => {
+    setSpinning(true);
     const date = new Date();
     const currentHour = date.getHours();
     const currentMinutes = date.getMinutes();
@@ -102,15 +104,7 @@ export default function Home() {
           if (acc >= getAngle) {
             start = index === 0 ? 0 : acc - dataInfo[index - 1].percentage * 3.6;
             end = acc;
-            console.log("acc ===> ", acc);
-            console.log("start ===> ", start);
-            console.log("end ===> ", end);
-            console.log("dataInfo[index] ===> ", dataInfo[index]);
-            console.log("dataInfo[index - 1] ===> ", dataInfo[index - 1]);
             if (getAngle >= start && getAngle <= end) {
-              if (!dataInfo[index]?.name) {
-                return dataInfo[index - 1];
-              }
               return dataInfo[index];
             }
           }
@@ -119,10 +113,8 @@ export default function Home() {
           return {name: "No winner"};
         }
       }
-      const getWinner = getItemAtAngle();
-      
-      console.log("getItemAtAngle() ===> ", getItemAtAngle());
 
+      setSpinning(false);
       setCongrats(getItemAtAngle().name ? getItemAtAngle().name : "the one with color " + ntc.name(getItemAtAngle().color)[1]);
     }, newTime * 1000);
   };
@@ -137,9 +129,9 @@ export default function Home() {
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <h1 className={`${styles.title}`}>
-          <span>II Lu</span>
-          <span>nch W</span>
-          <span>heel</span>
+          <span className={`${styles.yellow}`}>II Lu</span>
+          <span className={`${styles.magenta}`}>nch W</span>
+          <span className={`${styles.cyan}`}>heel</span>
         </h1>
         <div className={`${styles.content}`}>
           <div>
@@ -154,7 +146,7 @@ export default function Home() {
                   dataInfo.map((value, index) => (
                     <g key={index}>
                       <path
-                        id={`path-${index}`}
+                        id={`path-${index}-${ntc.name(value.color)[1]}`}
                         d={calculatePath(value.percentage, index)}
                         fill={value.color}
                       />
@@ -176,6 +168,8 @@ export default function Home() {
                   handleSpin()
                 }}
                 className={`${styles.spinButton}`}
+                disabled={spinning}
+                style={{cursor: spinning ? "not-allowed" : "pointer", opacity: spinning ? 0.5 : 1}}
               >
                 Spin the Wheel
               </button>
@@ -202,19 +196,24 @@ export default function Home() {
               <div className={`${styles.buttons}`}>
                 <button
                   onClick={() => {
-                    if (dataInfo.reduce((acc, value) => acc + value.percentage, 0) + input.data > 100) {
+                    const accumulated = dataInfo.reduce((acc, value) => acc + value.percentage, 0);
+                    if (accumulated + input.data > 100) {
                       alert("Total value cannot exceed 100");
                       return;
                     }
                     const color = input.color ? input.color : getRandomColor();
+                    const newInfo = {
+                      percentage: input.data,
+                      color: color,
+                      name: input.name,
+                      textColor: isLight(color),
+                    }
+                    if (input.data > 99.999) {
+                      newInfo.percentage = 99.999;
+                    }
                     setDataInfo([
                       ...dataInfo,
-                      {
-                        percentage: input.data,
-                        color: color,
-                        name: input.name,
-                        textColor: isLight(color),
-                      }
+                      newInfo
                     ]);
                   }}
                 >
@@ -237,21 +236,45 @@ export default function Home() {
                   type="number"
                   value={value.percentage}
                   onChange={(e) => {
-                    setDataInfo(dataInfo.map((info, i) => i === index ? {percentage: Number(e.target.value), color: info.color, name: info.name, textColor: info.textColor} : info));
+                    setDataInfo(dataInfo.map((info, i) => i === index ?
+                        {
+                          percentage: Number(e.target.value) > 99.999 ? 99.999 : Number(e.target.value),
+                          color: info.color,
+                          name: info.name,
+                          textColor: info.textColor
+                        } :
+                        info
+                    ));
                   }}
                 />
                 <input
                   type="color"
                   value={value.color}
                   onChange={(e) => {
-                    setDataInfo(dataInfo.map((info, i) => i === index ? {percentage: info.percentage, color: e.target.value, name: info.name, textColor: isLight(e.target.value)} : info));
+                    setDataInfo(dataInfo.map((info, i) => i === index ?
+                      {
+                        percentage: info.percentage,
+                        color: e.target.value,
+                        name: info.name,
+                        textColor: isLight(e.target.value)
+                      } :
+                      info
+                    ));
                   }}
                 />
                 <input
                   type="text"
                   value={value.name}
                   onChange={(e) => {
-                    setDataInfo(dataInfo.map((info, i) => i === index ? {percentage: info.percentage, color: info.color, name: e.target.value, textColor: info.textColor} : info));
+                    setDataInfo(dataInfo.map((info, i) => i === index ?
+                      {
+                        percentage: info.percentage,
+                        color: info.color,
+                        name: e.target.value,
+                        textColor: info.textColor
+                      } :
+                      info
+                    ));
                   }}
                 />
                 <button
